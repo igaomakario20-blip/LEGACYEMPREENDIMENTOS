@@ -15,7 +15,7 @@ import urllib.parse
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-SITE_URL = "https://igaomakario20-blip.github.io/LEGACYEMPREENDIMENTOS/"
+SITE_URL = "https://legacyempreendimentos.netlify.app/"
 
 TIPOS = {"apartamento": "Apartamento", "studio": "Studio", "casa": "Casa", "lote": "Lote", "sala": "Sala comercial"}
 STATUS = {"lancamento": "Lançamento", "em-obra": "Em obra", "entregue": "Pronto para morar"}
