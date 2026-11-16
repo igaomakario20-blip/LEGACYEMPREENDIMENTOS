@@ -1,4 +1,4 @@
-# Igor Alves Imóveis
+# Legacy Empreendimentos
 
 Site de vendas de imóveis no estilo classificados: segmentos no topo, filtros na lateral, um card por empreendimento e uma página própria para cada um, com botão de WhatsApp e prévia com foto quando o link é enviado.
 
@@ -25,3 +25,10 @@ Status: `lancamento`, `em-obra`, `entregue` (vazio = consulte). "Próximo à ent
 python3 -m http.server 8000
 ```
 e abra http://localhost:8000
+
+## Coleções, perfil e "em breve"
+
+- `site`: nome, WhatsApp, link do simulador de ROI (`roiUrl`) e texto do rodapé.
+- `perfil` de cada imóvel: `investimento` e/ou `moradia` (alimenta o filtro "Seu objetivo").
+- `colecoes`: blocos em destaque na página inicial; `itens` lista slugs de `imoveis` ou de `embreve`.
+- `embreve`: empreendimentos ainda sem material; aparecem nas coleções com o botão "Pedir apresentação" (WhatsApp). Quando o material chegar, mova para `imoveis` com o mesmo slug.

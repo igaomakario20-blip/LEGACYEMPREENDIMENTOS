@@ -1,14 +1,127 @@
 window.DADOS = {
- "corretor": {
-  "nome": "Igor Alves",
-  "titulo": "Corretor especialista em investimento imobiliário",
-  "empresa": "Mybroker Eldorado · Equipe Legacy",
-  "creci": "CRECI-GO 46.153",
+ "site": {
+  "nome": "Legacy Empreendimentos",
   "whatsapp": "5562986046498",
   "whatsappTexto": "(62) 98604-6498",
-  "foto": "img/corretor/igor.webp"
+  "roiUrl": "https://claude.ai/artifact/FCp79GyfWfn97v9we5QFaQ",
+  "rodape": "Legacy Empreendimentos · Equipe Legacy Mybroker Eldorado"
  },
  "imoveis": [
+  {
+   "slug": "jardins-austria",
+   "nome": "Jardins Áustria",
+   "construtora": "FGR",
+   "cidade": "Goiânia",
+   "uf": "GO",
+   "bairro": "Margens da GO-060",
+   "endereco": "Jardins Áustria, Rodovia GO-060, Goiânia/GO",
+   "tipo": "casa",
+   "status": "lancamento",
+   "entrega": "2030-05",
+   "quartos": [
+    3,
+    4
+   ],
+   "area": [
+    113.19,
+    183.02
+   ],
+   "vagas": "Consulte",
+   "preco": 1299000,
+   "precoNota": "Casa térrea 3 suítes, 113 m², com terreno",
+   "tabela": "Simulador FGR · out/2026, valores ilustrativos",
+   "segmentos": [
+    "lancamento",
+    "financiamento-direto",
+    "investimento",
+    "alto-padrao"
+   ],
+   "perfil": [
+    "investimento",
+    "moradia"
+   ],
+   "destaque": true,
+   "resumo": "Condomínio fechado só de casas da FGR, série 40 anos: 499 casas, mais de 20 áreas de lazer e só cerca de 14% pago até a entrega.",
+   "descricao": "Bairro planejado com 499 casas, segurança 24h e mais de 20 áreas de lazer, a cerca de 25 minutos do centro de Goiânia. Duas plantas: casa térrea com 3 suítes (113 a 140 m²) e sobrado com 4 quartos, sendo 3 suítes (154 a 183 m²). Arquitetura de Pedro Ernesto inspirada em Viena, paisagismo Depieri. Financiamento direto com a FGR em até 480 meses: até a entrega paga-se cerca de 13,8% do valor. Os Jardins lançados pela FGR entre 2020 e 2022 valorizaram em média cerca de 15% ao ano (histórico, não é garantia).",
+   "lazer": [
+    "Pool Club com mais de 405 m² de lâmina d'água",
+    "Fitness Club e pilates",
+    "Tennis Club e Pickleball Arena",
+    "Circuito Jardins e trilhas",
+    "Vila Kids coberta",
+    "Pet Park",
+    "Padaria e empório",
+    "Espaço grill",
+    "Horta e pomar",
+    "Segurança 24h com biometria e CFTV"
+   ],
+   "pagamento": [
+    "Entrada de 5% na assinatura (R$ 64.950)",
+    "44 mensais de R$ 1.850 até a entrega",
+    "Parcela única de 2,5% em fev/2030",
+    "Saldo direto com a FGR: 436 mensais + 36 anuais",
+    "Juros de 6,99% a.a. + IPCA",
+    "Sobrado: R$ 1.477.400 nas mesmas condições"
+   ],
+   "fotos": [
+    {
+     "src": "img/jardins-austria/poolclub.webp",
+     "legenda": "Pool Club"
+    },
+    {
+     "src": "img/jardins-austria/terrea.webp",
+     "legenda": "Casa térrea decorada"
+    },
+    {
+     "src": "img/jardins-austria/sobrado.webp",
+     "legenda": "Casa sobrado decorada"
+    },
+    {
+     "src": "img/jardins-austria/piscina.webp",
+     "legenda": "Piscina"
+    },
+    {
+     "src": "img/jardins-austria/portaria.webp",
+     "legenda": "Portaria"
+    },
+    {
+     "src": "img/jardins-austria/tenis.webp",
+     "legenda": "Tennis Club"
+    },
+    {
+     "src": "img/jardins-austria/fitness.webp",
+     "legenda": "Fitness Club"
+    },
+    {
+     "src": "img/jardins-austria/kids.webp",
+     "legenda": "Vila Kids"
+    },
+    {
+     "src": "img/jardins-austria/grill.webp",
+     "legenda": "Espaço grill"
+    },
+    {
+     "src": "img/jardins-austria/padaria.webp",
+     "legenda": "Padaria e empório"
+    },
+    {
+     "src": "img/jardins-austria/pet.webp",
+     "legenda": "Pet Park"
+    },
+    {
+     "src": "img/jardins-austria/trilha.webp",
+     "legenda": "Trilhas"
+    },
+    {
+     "src": "img/jardins-austria/planta-terrea.webp",
+     "legenda": "Planta casa térrea"
+    },
+    {
+     "src": "img/jardins-austria/planta-sobrado.webp",
+     "legenda": "Planta casa sobrado"
+    }
+   ]
+  },
   {
    "slug": "icoon-home-resort",
    "nome": "ICOON Home Resort",
@@ -108,6 +221,10 @@ window.DADOS = {
      "src": "img/icoon/img_5322.webp",
      "legenda": "Decorado 2 quartos (foto real)"
     }
+   ],
+   "perfil": [
+    "investimento",
+    "moradia"
    ]
   },
   {
@@ -166,6 +283,9 @@ window.DADOS = {
      "src": "img/city-code-rp/studio.webp",
      "legenda": "Code Studio decorado"
     }
+   ],
+   "perfil": [
+    "investimento"
    ]
   },
   {
@@ -214,7 +334,12 @@ window.DADOS = {
      "src": "img/legitimo-flamboyant/fachada.webp",
      "legenda": "Fachada Torre Norte"
     }
+   ],
+   "perfil": [
+    "moradia",
+    "investimento"
    ]
   }
  ]
 };
+window.ICONES = {"zap": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.5.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 .9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z\"/></svg>", "area": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5\"/></svg>", "cama": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 14h18M6 9V6h5v3M3 18v2M21 18v2\"/></svg>", "chave": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"8\" cy=\"15\" r=\"4\"/><path d=\"M11 12l9-9M17 6l3 3M14 9l2 2\"/></svg>", "pin": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z\"/><circle cx=\"12\" cy=\"9\" r=\"2.5\"/></svg>", "grafico": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 20h18M5 16l5-5 4 3 6-7M15 7h5v5\"/></svg>", "casa": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-6h4v6\"/></svg>", "foto": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"14\" rx=\"2\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/><path d=\"M8 6l1.5-2h5L16 6\"/></svg>"};

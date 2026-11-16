@@ -1,8 +1,10 @@
-/* Página de busca: segmentos, filtros, ordenação, simulador. Dados em assets/dados.js (gerado por scripts/build.py). */
+/* Página inicial: objetivo (investir/morar), segmentos, filtros, ordenação, simulador.
+   Dados em assets/dados.js (gerado por scripts/build.py). */
 (function () {
   'use strict';
   var D = window.DADOS;
-  var C = D.corretor;
+  var I = window.ICONES;
+  var S = D.site;
   var LISTA = D.imoveis;
 
   var SEGMENTOS = [
@@ -14,19 +16,19 @@
     { id: 'lancamentos', nome: 'Lançamentos', filtro: function (i) { return i.status === 'lancamento'; } },
     { id: 'proximo-entrega', nome: 'Próximo à entrega', filtro: function (i) { return i.status === 'em-obra' && mesesAte(i.entrega) <= 12; } },
     { id: 'prontos', nome: 'Prontos para morar', filtro: function (i) { return i.status === 'entregue'; } },
-    { id: 'financiamento-direto', nome: 'Financiamento direto', filtro: temSeg('financiamento-direto') },
-    { id: 'mcmv', nome: 'Minha Casa Minha Vida', filtro: temSeg('mcmv') },
-    { id: 'investimento', nome: 'Investimento e renda', filtro: temSeg('investimento') },
     { id: 'alto-padrao', nome: 'Alto padrão', filtro: temSeg('alto-padrao') },
+    { id: 'financiamento-direto', nome: 'Financiamento direto', filtro: temSeg('financiamento-direto') },
+    { id: 'airbnb', nome: 'Airbnb e curta temporada', filtro: temSeg('airbnb') },
+    { id: 'mcmv', nome: 'Minha Casa Minha Vida', filtro: temSeg('mcmv') },
     { id: 'aluguel', nome: 'Aluguel', filtro: temSeg('aluguel') },
-    { id: 'simulador', nome: 'Simulador', painel: true },
-    { id: 'sobre', nome: 'Sobre o corretor', painel: true }
+    { id: 'simulador', nome: 'Simulador', painel: true }
   ];
+  var ATALHOS = { investir: 'investimento', morar: 'moradia' };
 
   var TIPOS = { apartamento: 'Apartamento', studio: 'Studio', casa: 'Casa', lote: 'Lote', sala: 'Sala comercial' };
   var STATUS = { lancamento: 'Lançamento', 'em-obra': 'Em obra', entregue: 'Pronto para morar' };
 
-  var estado = { seg: 'todos', busca: '', cidade: '', bairro: '', tipo: '', precoMin: '', precoMax: '', quartos: 0, areaMin: '', status: '', construtora: '', ordem: 'relevancia' };
+  var estado = { seg: 'todos', perfil: '', busca: '', cidade: '', bairro: '', tipo: '', precoMin: '', precoMax: '', quartos: 0, areaMin: '', status: '', construtora: '', ordem: 'relevancia' };
 
   function temSeg(s) { return function (i) { return (i.segmentos || []).indexOf(s) >= 0; }; }
   function mesesAte(ym) {
@@ -48,13 +50,16 @@
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function semAcento(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
-  function zap(texto) { return 'https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent(texto); }
+  function zap(texto) { return 'https://wa.me/' + S.whatsapp + '?text=' + encodeURIComponent(texto); }
+  function segAtual() { return SEGMENTOS.filter(function (s) { return s.id === estado.seg; })[0] || SEGMENTOS[0]; }
+  function temPerfil(i) { return !estado.perfil || (i.perfil || []).indexOf(estado.perfil) >= 0; }
   var $ = function (s) { return document.querySelector(s); };
 
   /* ---------- filtros ---------- */
   function passa(i) {
-    var seg = SEGMENTOS.filter(function (s) { return s.id === estado.seg; })[0];
-    if (seg && seg.filtro && !seg.filtro(i)) return false;
+    var seg = segAtual();
+    if (seg.filtro && !seg.filtro(i)) return false;
+    if (!temPerfil(i)) return false;
     if (estado.busca) {
       var alvo = semAcento([i.nome, i.bairro, i.cidade, i.construtora, i.resumo].join(' '));
       var ok = semAcento(estado.busca).split(/\s+/).every(function (t) { return alvo.indexOf(t) >= 0; });
@@ -86,53 +91,66 @@
 
   /* ---------- render ---------- */
   function card(i) {
+    var segs = i.segmentos || [];
     var selos = '';
     if (STATUS[i.status]) selos += '<span class="selo">' + STATUS[i.status] + '</span>';
-    if ((i.segmentos || []).indexOf('financiamento-direto') >= 0) selos += '<span class="selo ouro">Financiamento direto</span>';
-    if ((i.segmentos || []).indexOf('alto-padrao') >= 0) selos += '<span class="selo ouro">Alto padrão</span>';
-    var preco = i.preco != null
-      ? '<div class="preco">' + brl(i.preco) + '<small>' + esc(i.precoNota || '') + '</small></div>'
-      : '<div class="preco">Sob consulta<small>' + esc(i.precoNota || '') + '</small></div>';
+    if (segs.indexOf('alto-padrao') >= 0) selos += '<span class="selo ouro">Alto padrão</span>';
+    else if (segs.indexOf('financiamento-direto') >= 0) selos += '<span class="selo ouro">Financiamento direto</span>';
     var specs = [];
-    if (i.area) specs.push('<span>📐 ' + faixa(i.area, ' m²') + '</span>');
-    if (i.quartos) specs.push('<span>🛏️ ' + faixa(i.quartos, i.quartos[1] === 1 ? ' quarto' : ' quartos', 'studio') + '</span>');
-    if (i.entrega) specs.push('<span>🔑 ' + mesAno(i.entrega) + '</span>');
+    if (i.area) specs.push('<span>' + I.area + faixa(i.area, ' m²') + '</span>');
+    if (i.quartos) specs.push('<span>' + I.cama + faixa(i.quartos, i.quartos[1] === 1 ? ' quarto' : ' quartos', 'studio') + '</span>');
+    if (i.entrega) specs.push('<span>' + I.chave + 'Entrega ' + mesAno(i.entrega) + '</span>');
+    var preco = i.preco != null
+      ? '<div><small>Valor de referência</small><b>' + brl(i.preco) + '</b></div>'
+      : '<div><small>Valores</small><b>Sob consulta</b></div>';
     return '<a class="card" href="imoveis/' + i.slug + '/">' +
       '<div class="foto"><img loading="lazy" src="' + esc(i.fotos[0] && i.fotos[0].src) + '" alt="' + esc(i.nome) + '">' +
       '<div class="selos">' + selos + '</div>' +
-      (i.fotos.length > 1 ? '<span class="qtd-fotos">📷 ' + i.fotos.length + '</span>' : '') + '</div>' +
-      '<div class="info">' + preco + '<h3>' + esc(i.nome) + '</h3>' +
-      '<div class="local">' + esc(i.bairro) + ', ' + esc(i.cidade) + '/' + esc(i.uf) + '</div>' +
+      (i.fotos.length > 1 ? '<span class="qtd-fotos">' + I.foto + i.fotos.length + '</span>' : '') + '</div>' +
+      '<div class="info"><span class="kick">' + esc(i.construtora) + ' · ' + esc(TIPOS[i.tipo] || '') + '</span>' +
+      '<h3>' + esc(i.nome) + '</h3>' +
+      '<div class="local">' + I.pin + esc(i.bairro) + ', ' + esc(i.cidade) + '/' + esc(i.uf) + '</div>' +
       '<div class="specs">' + specs.join('') + '</div>' +
-      '<div class="rodape"><span>' + esc(i.construtora) + '</span><span>' + esc(TIPOS[i.tipo] || '') + '</span></div>' +
+      '<div class="preco">' + preco + '<span class="ver">Ver detalhes ›</span></div>' +
       '</div></a>';
   }
 
   function vazio() {
-    var seg = SEGMENTOS.filter(function (s) { return s.id === estado.seg; })[0];
-    return '<div class="vazio"><h3>Ainda não tem imóvel publicado aqui</h3>' +
-      '<p>Tenho opções de ' + esc(seg ? seg.nome.toLowerCase() : 'imóveis') + ' que ainda não estão no site. Me chama que eu te mando as melhores.</p>' +
-      '<a class="btn btn-zap" target="_blank" rel="noopener" href="' + zap('Olá Igor! Vi seu site e procuro opções em: ' + (seg ? seg.nome : '')) + '">' + ICONE_ZAP + ' Falar no WhatsApp</a></div>';
+    var seg = segAtual();
+    var oque = seg.id === 'todos' ? 'esse perfil' : seg.nome.toLowerCase();
+    return '<div class="vazio"><h3>Em breve no site</h3>' +
+      '<p>Temos opções de ' + esc(oque) + ' que ainda não foram publicadas. Fale com a Equipe Legacy e receba as melhores no seu WhatsApp.</p>' +
+      '<a class="btn btn-zap" target="_blank" rel="noopener" href="' + zap('Olá! Vim pelo site da Legacy Empreendimentos e procuro opções em: ' + seg.nome) + '">' + I.zap + ' Falar no WhatsApp</a></div>';
   }
 
   function contar() {
     SEGMENTOS.forEach(function (s) {
       var el = document.querySelector('[data-seg="' + s.id + '"] .n');
-      if (el && s.filtro) el.textContent = LISTA.filter(s.filtro).length;
+      if (!el || !s.filtro) return;
+      var n = LISTA.filter(function (i) { return s.filtro(i) && temPerfil(i); }).length;
+      el.textContent = n ? n : '';
     });
   }
 
   function render() {
-    var seg = SEGMENTOS.filter(function (s) { return s.id === estado.seg; })[0] || SEGMENTOS[0];
+    var seg = segAtual();
     document.querySelectorAll('.seg').forEach(function (b) { b.classList.toggle('ativo', b.dataset.seg === seg.id); });
+    document.querySelectorAll('[data-perfil]').forEach(function (b) { b.classList.toggle('ativo', b.dataset.perfil === estado.perfil); });
     $('#area-lista').hidden = !!seg.painel;
     $('#painel-simulador').hidden = seg.id !== 'simulador';
-    $('#painel-sobre').hidden = seg.id !== 'sobre';
+    contar();
     if (seg.painel) return;
     var l = ordenar(LISTA.filter(passa));
-    $('#titulo-resultado').innerHTML = esc(seg.id === 'todos' ? 'Imóveis à venda' : seg.nome) + '<small>' + l.length + (l.length === 1 ? ' resultado' : ' resultados') + '</small>';
+    var nome = seg.id === 'todos' ? (estado.perfil === 'investimento' ? 'Para investir' : estado.perfil === 'moradia' ? 'Para morar' : 'Empreendimentos') : seg.nome;
+    $('#titulo-resultado').innerHTML = esc(nome) + '<small>' + l.length + (l.length === 1 ? ' resultado' : ' resultados') + '</small>';
     $('#grade').innerHTML = l.length ? l.map(card).join('') : vazio();
     $('#ver-resultados').textContent = 'Ver ' + l.length + (l.length === 1 ? ' resultado' : ' resultados');
+  }
+
+  function irParaLista() {
+    var alvo = $('#explorar');
+    var t = document.querySelector('.topo'), h = getComputedStyle(t).position === 'sticky' ? t.offsetHeight : 0;
+    if (alvo) window.scrollTo({ top: alvo.getBoundingClientRect().top + window.pageYOffset - h + 20, behavior: 'smooth' });
   }
 
   /* ---------- opções dos selects ---------- */
@@ -169,25 +187,49 @@
     $('#form-busca').addEventListener('submit', function (e) {
       e.preventDefault();
       estado.busca = $('#busca').value.trim();
-      if (SEGMENTOS.filter(function (s) { return s.id === estado.seg; })[0].painel) location.hash = 'todos';
+      if (segAtual().painel) location.hash = 'todos';
       render();
-      $('#area-lista').scrollIntoView({ behavior: 'smooth' });
+      irParaLista();
     });
     $('#busca').addEventListener('input', function (e) { estado.busca = e.target.value.trim(); render(); });
     var abrir = function (sim) { $('.filtros').classList.toggle('aberto', sim); $('.veu').classList.toggle('aberto', sim); };
     $('#abrir-filtros').addEventListener('click', function () { abrir(true); });
     $('#fechar-filtros').addEventListener('click', function () { abrir(false); });
-    $('#ver-resultados').addEventListener('click', function () { abrir(false); $('#area-lista').scrollIntoView({ behavior: 'smooth' }); });
+    $('#ver-resultados').addEventListener('click', function () { abrir(false); irParaLista(); });
     $('.veu').addEventListener('click', function () { abrir(false); });
+  }
+
+  function ligarPerfil() {
+    document.querySelectorAll('#perfil [data-perfil]').forEach(function (b) {
+      b.addEventListener('click', function () { estado.perfil = b.dataset.perfil; render(); });
+    });
+    document.querySelectorAll('[data-ir-perfil]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        estado.perfil = b.dataset.irPerfil;
+        if (segAtual().painel) estado.seg = 'todos';
+        render();
+        irParaLista();
+      });
+    });
   }
 
   function ligarSegmentos() {
     $('#segmentos').innerHTML = SEGMENTOS.map(function (s) {
       return '<a class="seg" href="#' + s.id + '" data-seg="' + s.id + '">' + esc(s.nome) + (s.filtro ? ' <span class="n"></span>' : '') + '</a>';
     }).join('');
+    document.querySelectorAll('.seg').forEach(function (a) {
+      a.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        history.replaceState(null, '', '#' + a.dataset.seg);
+        estado.seg = a.dataset.seg;
+        render();
+        if ($('#explorar').getBoundingClientRect().top < 0) irParaLista();
+      });
+    });
     var ler = function () {
       var h = location.hash.replace('#', '');
-      estado.seg = SEGMENTOS.some(function (s) { return s.id === h; }) ? h : 'todos';
+      if (ATALHOS[h]) { estado.perfil = ATALHOS[h]; estado.seg = 'todos'; render(); irParaLista(); return; }
+      if (SEGMENTOS.some(function (s) { return s.id === h; })) { estado.seg = h; render(); irParaLista(); return; }
       render();
     };
     window.addEventListener('hashchange', ler);
@@ -203,18 +245,15 @@
     $('#r-fin').textContent = brl(fin);
     $('#r-parcela').textContent = brl(parcela);
     $('#r-renda').textContent = brl(parcela / 0.3);
-    $('#s-zap').href = zap('Olá Igor! Fiz uma simulação no seu site: imóvel de ' + brl(v) + ', entrada de ' + brl(e) + ', parcela de ' + brl(parcela) + ' em ' + n + ' meses. Quais imóveis se encaixam?');
+    $('#s-zap').href = zap('Olá! Fiz uma simulação no site da Legacy Empreendimentos: imóvel de ' + brl(v) + ', entrada de ' + brl(e) + ', parcela de ' + brl(parcela) + ' em ' + n + ' meses. Quais imóveis se encaixam?');
   }
 
-  var ICONE_ZAP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.1 1 2.1 1.3 2.4 1.5.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 .9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>';
-
   document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('[data-zap]').forEach(function (a) {
-      a.href = zap(a.dataset.zap || 'Olá Igor! Vi seu site de imóveis e quero mais informações.');
-    });
+    var q = new URLSearchParams(location.search).get('q');
+    if (q) { estado.busca = q; $('#busca').value = q; }
     ligarFiltros();
+    ligarPerfil();
     ligarSegmentos();
-    contar();
     ['#s-valor', '#s-entrada', '#s-juros', '#s-prazo'].forEach(function (s) { $(s).addEventListener('input', simular); });
     simular();
   });
