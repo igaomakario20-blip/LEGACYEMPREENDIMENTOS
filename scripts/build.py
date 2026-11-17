@@ -112,8 +112,17 @@ def rodape(s, prefixo):
 </div></footer>"""
 
 
+def onde(i):
+    """Bairro e cidade para exibir; sem cidade conhecida mostra só o estado."""
+    partes = [x for x in [i.get("bairro"), i.get("cidade")] if x]
+    return ", ".join(partes) + (f"/{i['uf']}" if i.get("cidade") else "") if partes else "Goiás"
+
+
 def peca(i, prefixo=""):
     preco = brl(i["preco"]) if i.get("preco") is not None else "Valores sob consulta"
+    if not i["fotos"]:
+        return (f'<a class="peca breve" href="{prefixo}imoveis/{e(i["slug"])}/"><img class="escudo-d" src="{prefixo}img/marca/escudo.webp" alt="" loading="lazy"><span class="marca-d">{e(i["construtora"])}</span>'
+                f'<div class="txt"><small>{e(onde(i))}</small><b>{e(i["nome"])}</b><span>{ICONES["zap"]} Ver e pedir apresentação</span></div></a>')
     foto = i["fotos"][0]["src"]
     return (f'<a class="peca" href="{prefixo}imoveis/{e(i["slug"])}/"><img loading="lazy" src="{prefixo}{e(foto)}" alt="{e(i["nome"])}">'
             f'<div class="txt"><small>{e(i["construtora"])} · {e(i["bairro"])}</small><b>{e(i["nome"])}</b><span>{e(preco)}</span></div></a>')
@@ -256,8 +265,8 @@ def pagina_imovel(d, i):
     url = f"{SITE_URL}imoveis/{i['slug']}/"
     tem_preco = i.get("preco") is not None
     preco_txt = brl(i["preco"]) if tem_preco else "Sob consulta"
-    desc = f"{i['resumo']} {i['bairro']}, {i['cidade']}/{i['uf']}."
-    titulo = f"{i['nome']} · {i['bairro']}, {i['cidade']} | Legacy Empreendimentos"
+    desc = f"{i['resumo']} {onde(i)}."
+    titulo = f"{i['nome']} · {onde(i)} | Legacy Empreendimentos"
     link_zap = zap(s["whatsapp"], f"Olá! Vi o {i['nome']} no site da Legacy Empreendimentos e quero a tabela atualizada. {url}")
     link_visita = zap(s["whatsapp"], f"Olá! Quero agendar uma visita ao decorado do {i['nome']}. {url}")
 
@@ -270,6 +279,12 @@ def pagina_imovel(d, i):
     if len(fotos) > 1:
         gal.append(f'<button type="button" class="selo ver-todas" data-i="0">{ICONES["foto"]}&nbsp;{len(fotos)} fotos</button>')
     classe_gal = "galeria uma" if len(fotos) < 3 else "galeria"
+    if not fotos:
+        classe_gal = "galeria vazia"
+        link_book = zap(s["whatsapp"], f"Olá! Vi o {i['nome']} ({i['construtora']}) no site da Legacy Empreendimentos e quero receber o book com fotos, plantas e tabela. {url}")
+        gal = [f'<img class="escudo-d" src="{p}img/marca/escudo.webp" alt=""><span class="marca-d">{e(i["construtora"])}</span>'
+               f'<div class="txt"><b>Apresentação exclusiva</b><p>Fotos, plantas e tabela deste empreendimento são enviadas pela Equipe Legacy no WhatsApp.</p>'
+               f'<a class="btn btn-zap" target="_blank" rel="noopener" href="{e(link_book)}">{ICONES["zap"]} Receber o book</a></div>']
 
     segs = i.get("segmentos", [])
     selos = ""
@@ -288,13 +303,19 @@ def pagina_imovel(d, i):
     fichas.append(("Vagas", i.get("vagas") or "Consulte"))
     fichas.append(("Entrega", mes_ano(i.get("entrega")) or "Consulte"))
     fichas.append(("Construtora", i["construtora"]))
+    if len(fichas) % 3:
+        fichas.append(("Fase da obra", STATUS.get(i.get("status"), "Consulte")))
+    if len(fichas) % 3:
+        fichas.append(("Região", onde(i)))
     fichas_html = "".join(f'<div class="ficha"><small>{e(a)}</small><b>{e(b)}</b></div>' for a, b in fichas)
 
     lazer = "".join(f"<li>{e(x)}</li>" for x in i.get("lazer", []))
     bloco_lazer = f'<div class="bloco"><h2>Lazer e diferenciais</h2><ul class="lista-check">{lazer}</ul></div>' if lazer else ""
     pag = "".join(f"<li>{e(x)}</li>" for x in i.get("pagamento", []))
     bloco_pag = f'<div class="bloco"><h2>Condições de pagamento</h2><ul class="lista-check">{pag}</ul><p class="nota">{e(i.get("tabela", ""))}. Peça a simulação da sua unidade no WhatsApp.</p></div>' if pag else ""
-    mapa = "https://maps.google.com/maps?q=" + urllib.parse.quote(i["endereco"]) + "&output=embed"
+    mapa = "https://maps.google.com/maps?q=" + urllib.parse.quote(i["endereco"]) + "&output=embed" if i.get("endereco") else ""
+    bloco_mapa = f'<div class="bloco"><h2>Localização</h2><iframe class="mapa" loading="lazy" title="Mapa" src="{e(mapa)}"></iframe></div>' if mapa else ""
+    og = SITE_URL + (fotos[0]["src"] if fotos else "img/marca/hero.webp")
     fotos_js = json.dumps([{"src": p + f["src"], "legenda": f["legenda"]} for f in fotos], ensure_ascii=False)
 
     perfis = i.get("perfil", [])
@@ -304,7 +325,7 @@ def pagina_imovel(d, i):
     if "investimento" in perfis and s.get("roiUrl"):
         bloco_roi = f'<div class="roi"><a class="link-sutil" target="_blank" rel="noopener" href="{e(s["roiUrl"])}">{ICONES["grafico"]} Calcule o retorno (ROI) deste investimento ›</a></div>'
 
-    return f"""{cabeca(titulo, desc, SITE_URL + fotos[0]['src'], url, p)}
+    return f"""{cabeca(titulo, desc, og, url, p)}
 <body class="tem-barra">
 {topo(s, p)}
 <main class="container">
@@ -316,13 +337,13 @@ def pagina_imovel(d, i):
         <div class="selos">{selos}</div>
         <p class="kick">{e(i['construtora'])} · {e(TIPOS.get(i['tipo'], ''))}</p>
         <h1>{e(i['nome'])}</h1>
-        <div class="local">{ICONES['pin']} {e(i['endereco'])}</div>
+        <div class="local">{ICONES['pin']} {e(i['endereco'] or onde(i))}</div>
       </div>
       <div class="bloco"><h2>Ficha do empreendimento</h2><div class="fichas">{fichas_html}</div></div>
       <div class="bloco"><h2>Sobre o empreendimento</h2><p>{e(i['descricao'])}</p></div>
       {bloco_lazer}
       {bloco_pag}
-      <div class="bloco"><h2>Localização</h2><iframe class="mapa" loading="lazy" title="Mapa" src="{e(mapa)}"></iframe></div>
+      {bloco_mapa}
     </div>
     <aside class="lateral">
       <div class="bloco caixa-preco">

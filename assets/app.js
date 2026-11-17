@@ -77,6 +77,14 @@
     return true;
   }
 
+  /* destaques primeiro, depois quem já tem fotos no site */
+  function peso(i) { return (i.destaque ? 2 : 0) + (i.fotos.length ? 1 : 0); }
+  function onde(i) {
+    var p = [i.bairro, i.cidade].filter(Boolean).join(', ');
+    return p ? p + (i.cidade ? '/' + i.uf : '') : 'Goiás';
+  }
+  var POR_PAGINA = 24, mostrando = POR_PAGINA;
+
   function ordenar(l) {
     var o = estado.ordem;
     var n = function (v, alt) { return v == null || v === '' ? alt : v; };
@@ -85,7 +93,7 @@
       if (o === 'maior-preco') return n(b.preco, -1) - n(a.preco, -1);
       if (o === 'entrega') return mesesAte(a.entrega) - mesesAte(b.entrega);
       if (o === 'maior-area') return n(b.area && b.area[1], 0) - n(a.area && a.area[1], 0);
-      return (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0);
+      return peso(b) - peso(a);
     });
   }
 
@@ -104,12 +112,14 @@
       ? '<div><small>Valor de referência</small><b>' + brl(i.preco) + '</b></div>'
       : '<div><small>Valores</small><b>Sob consulta</b></div>';
     return '<a class="card" href="imoveis/' + i.slug + '/">' +
-      '<div class="foto"><img loading="lazy" src="' + esc(i.fotos[0] && i.fotos[0].src) + '" alt="' + esc(i.nome) + '">' +
+      (i.fotos.length
+        ? '<div class="foto"><img loading="lazy" src="' + esc(i.fotos[0].src) + '" alt="' + esc(i.nome) + '">'
+        : '<div class="foto sem-foto"><img class="escudo-d" loading="lazy" src="img/marca/escudo.webp" alt=""><span class="marca-d">' + esc(i.construtora) + '</span><span class="aviso">' + I.zap + ' Book no WhatsApp</span>') +
       '<div class="selos">' + selos + '</div>' +
       (i.fotos.length > 1 ? '<span class="qtd-fotos">' + I.foto + i.fotos.length + '</span>' : '') + '</div>' +
       '<div class="info"><span class="kick">' + esc(i.construtora) + ' · ' + esc(TIPOS[i.tipo] || '') + '</span>' +
       '<h3>' + esc(i.nome) + '</h3>' +
-      '<div class="local">' + I.pin + esc(i.bairro) + ', ' + esc(i.cidade) + '/' + esc(i.uf) + '</div>' +
+      '<div class="local">' + I.pin + esc(onde(i)) + '</div>' +
       '<div class="specs">' + specs.join('') + '</div>' +
       '<div class="preco">' + preco + '<span class="ver">Ver detalhes ›</span></div>' +
       '</div></a>';
@@ -132,7 +142,8 @@
     });
   }
 
-  function render() {
+  function render(manterPagina) {
+    if (manterPagina !== true) mostrando = POR_PAGINA;
     var seg = segAtual();
     document.querySelectorAll('.seg').forEach(function (b) { b.classList.toggle('ativo', b.dataset.seg === seg.id); });
     document.querySelectorAll('[data-perfil]').forEach(function (b) { b.classList.toggle('ativo', b.dataset.perfil === estado.perfil); });
@@ -143,7 +154,11 @@
     var l = ordenar(LISTA.filter(passa));
     var nome = seg.id === 'todos' ? (estado.perfil === 'investimento' ? 'Para investir' : estado.perfil === 'moradia' ? 'Para morar' : 'Empreendimentos') : seg.nome;
     $('#titulo-resultado').innerHTML = esc(nome) + '<small>' + l.length + (l.length === 1 ? ' resultado' : ' resultados') + '</small>';
-    $('#grade').innerHTML = l.length ? l.map(card).join('') : vazio();
+    var mais = l.length - mostrando;
+    $('#grade').innerHTML = l.length ? l.slice(0, mostrando).map(card).join('') +
+      (mais > 0 ? '<button type="button" class="btn btn-linha mais-itens" id="mostrar-mais">Mostrar mais ' + Math.min(mais, POR_PAGINA) + ' de ' + mais + '</button>' : '') : vazio();
+    var bm = $('#mostrar-mais');
+    if (bm) bm.addEventListener('click', function () { mostrando += POR_PAGINA; render(true); });
     $('#ver-resultados').textContent = 'Ver ' + l.length + (l.length === 1 ? ' resultado' : ' resultados');
   }
 

@@ -300,3 +300,22 @@ option{background:var(--sup);color:var(--texto)}
   .card .preco b{font-size:18px}
   .zap-flutuante{right:14px;bottom:14px;width:52px;height:52px}
 }
+/* empreendimentos ainda sem fotos no site */
+.card .foto.sem-foto{background:radial-gradient(120% 90% at 30% 10%,#23272e,#0d0e11 70%)}
+.card .foto.sem-foto::before{content:"";position:absolute;inset:10px;border:1px solid rgba(207,211,217,.08);border-radius:6px;pointer-events:none}
+.card .foto.sem-foto .escudo-d{position:absolute;left:50%;top:46%;width:30%;height:auto;transform:translate(-50%,-50%);opacity:.18;filter:grayscale(1);object-fit:contain}
+.card:hover .foto.sem-foto .escudo-d{opacity:.3;transform:translate(-50%,-50%) scale(1.04)}
+.card .foto.sem-foto .marca-d{position:absolute;top:18px;left:18px;right:18px;font-family:var(--serif);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--suave)}
+.card .foto.sem-foto .aviso{position:absolute;left:18px;bottom:16px;z-index:1;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--prata)}
+.card .foto.sem-foto .aviso svg{width:14px;height:14px;color:var(--zap)}
+.card .foto.sem-foto::after{display:none}
+.mais-itens{grid-column:1/-1;justify-self:center;margin-top:8px}
+.galeria.vazia{display:flex;align-items:center;justify-content:center;min-height:300px;position:relative;background:radial-gradient(120% 90% at 30% 10%,#23272e,#0d0e11 70%);border:1px solid var(--linha);padding:40px 24px;text-align:center}
+.galeria.vazia .escudo-d{position:absolute;left:50%;top:50%;width:200px;max-width:45%;transform:translate(-50%,-50%);opacity:.1;filter:grayscale(1)}
+.galeria.vazia .marca-d{position:absolute;top:20px;left:24px;font-family:var(--serif);font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--suave)}
+.galeria.vazia .txt{position:relative;max-width:440px}
+.galeria.vazia .txt b{font-family:var(--serif);font-size:22px;letter-spacing:.06em;display:block;margin-bottom:8px}
+.galeria.vazia .txt p{color:var(--suave);margin-bottom:18px}
+@media (max-width:760px){.galeria.vazia{min-height:260px;padding:56px 18px 28px}}
+.galeria.vazia a.btn{background:var(--cromo-h);background-size:220% 100%;overflow:visible}
+.galeria.vazia .txt a.btn{display:inline-flex}
