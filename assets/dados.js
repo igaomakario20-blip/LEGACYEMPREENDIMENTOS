@@ -1111,7 +1111,12 @@ window.DADOS = {
    "descricao": "15W22 é um empreendimento da Avolli em Goiânia. A Equipe Legacy envia pelo WhatsApp o book completo com fotos, plantas, metragens, tabela de preços e condições de pagamento atualizadas.",
    "lazer": [],
    "pagamento": [],
-   "fotos": [],
+   "fotos": [
+    {
+     "src": "img/15w22/fotomontagem.webp",
+     "legenda": "Fotomontagem na região"
+    }
+   ],
    "perfil": [
     "investimento",
     "moradia"
@@ -1389,7 +1394,12 @@ window.DADOS = {
    "descricao": "Supremo Brasil Residencial é um empreendimento da Supremo Brasil em Goiânia. A Equipe Legacy envia pelo WhatsApp o book completo com fotos, plantas, metragens, tabela de preços e condições de pagamento atualizadas.",
    "lazer": [],
    "pagamento": [],
-   "fotos": [],
+   "fotos": [
+    {
+     "src": "img/supremo-brasil/salao.webp",
+     "legenda": "Salão de festas"
+    }
+   ],
    "perfil": [
     "investimento",
     "moradia"
